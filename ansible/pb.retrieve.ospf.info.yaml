@@ -1,0 +1,67 @@
+### ---------------------------------------------------------------------------
+### Provision the Juniper devices
+### ---------------------------------------------------------------------------
+- hosts: juniper
+  connection: local
+  gather_facts: False
+  become: False
+  roles: 
+    - juniper.junos
+  vars:
+    provider_info:
+      host: "{{ inventory_hostname }}"
+      user: "automation"
+      passwd: "juniper123"
+
+  tasks:
+    - name: "### RETRIEVE CURRENT STATUS OF OSPF NEIGHBORS ###"
+      juniper_junos_rpc:
+        host: "{{ ansible_host }}"
+        user: "{{ provider_info.user }}"
+        passwd: "{{ provider_info.passwd }}"
+        rpc: get_ospf_neighbor_information
+      register: ospf
+
+    - name: "### PRINT THE RESULT TO CONSOLE ###"
+      debug:
+        msg: "{{ ospf }}"
+
+### ---------------------------------------------------------------------------
+### Provision the Cisco devices
+### ---------------------------------------------------------------------------
+- hosts: cisco
+  connection: local
+  gather_facts: False
+  become: False
+  vars:
+    provider_info:
+      host: "{{ ansible_host }}"
+      user: "automation"
+      passwd: "juniper123"
+
+  tasks:
+    - name: "### RETRIEVE CURRENT STATUS OF OSPF NEIGHBORS ###"
+      ios_command:
+        provider:
+          host: "{{ provider_info.host }}"
+          username: "{{ provider_info.user }}"
+          password: "{{ provider_info.passwd }}"
+        commands: "show ip ospf neighbor"
+      register: ospf
+
+    - name: "### PRINT THE RESULT TO CONSOLE ###"
+      debug:
+        msg: "{{ ospf }}"
+
+    - name: "### RETRIEVE CURRENT STATUS OF OSPF NEIGHBORS ###"
+      ios_config:
+        provider:
+          host: "{{ provider_info.host }}"
+          username: "{{ provider_info.user }}"
+          password: "{{ provider_info.passwd }}"
+        lines: "hostname {{ inventory_hostname }}"
+      register: config
+
+    - name: "### PRINT THE RESULT TO CONSOLE ###"
+      debug:
+        msg: "{{ config }}"

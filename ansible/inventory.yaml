@@ -1,0 +1,13 @@
+---
+all:
+  vars:
+    backup_directory: ./backup/{{ inventory_hostname }}
+    ansible_python_interpreter: "{{ ansible_playbook_python }}"
+  children:
+    cisco:
+      hosts:
+        cisco-rt1:
+          ansible_host: "192.168.105.186"
+    juniper:
+      hosts:
+        dallas-fw0:
